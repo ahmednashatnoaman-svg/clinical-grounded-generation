@@ -1,0 +1,46 @@
+{
+    "type": "object",
+    "required": ["recommendation", "evidence", "citations", "confidence"],
+    "additionalProperties": false,
+    "properties": {
+        "recommendation": {"type": "string"},
+        "evidence": {"type": "string"},
+        "citations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["document", "section", "page"],
+                "additionalProperties": false,
+                "properties": {
+                    "document": {"type": "string", "minLength": 1},
+                    "section": {"type": "string"},
+                    "page": {"type": "integer", "minimum": 1}
+                }
+            }
+        },
+        "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low", "insufficient"]
+        }
+    },
+    "allOf": [
+        {
+            "if": {"properties": {"confidence": {"const": "insufficient"}}},
+            "then": {
+                "properties": {
+                    "evidence": {"const": ""},
+                    "citations": {"maxItems": 0}
+                }
+            }
+        },
+        {
+            "if": {"properties": {"confidence": {"enum": ["high", "medium", "low"]}}},
+            "then": {
+                "properties": {
+                    "evidence": {"minLength": 1},
+                    "citations": {"minItems": 1}
+                }
+            }
+        }
+    ]
+}
